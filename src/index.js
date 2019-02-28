@@ -1,7 +1,12 @@
-let toCancel = false;
+const Effect = (F, cleanup = () => {}, cancellations = []) => {
+  let toCancel = false;
 
-const Effect = (F, cleanup = () => {}) => {
-  const empty = _ => Effect(() => {}, cleanup);
+  const cancel = () => {
+    toCancel = true;
+    console.log('Cancelled');
+  };
+
+  const empty = _ => Effect(() => {}, cleanup, true);
 
   const cancellableApply = (f, g) => (...args) => {
     if (toCancel) {
@@ -15,6 +20,7 @@ const Effect = (F, cleanup = () => {}) => {
       (reject, resolve) =>
         F(x => reject(x), y => cancellableApply(resolve)(f(y))),
       cleanup,
+      [...cancellations, cancel],
     );
 
   const chain = f =>
@@ -25,6 +31,7 @@ const Effect = (F, cleanup = () => {}) => {
           y => cancellableApply(f, empty)(y).fork(reject, resolve),
         ),
       cleanup,
+      [...cancellations, cancel],
     );
 
   const orElse = f =>
@@ -35,6 +42,7 @@ const Effect = (F, cleanup = () => {}) => {
           y => cancellableApply(resolve)(y),
         ),
       cleanup,
+      [...cancellations, cancel],
     );
 
   const fold = (f, g) =>
@@ -45,6 +53,7 @@ const Effect = (F, cleanup = () => {}) => {
           y => cancellableApply(resolve)(g(y)),
         ),
       cleanup,
+      [...cancellations, cancel],
     );
 
   const cata = pattern =>
@@ -58,6 +67,7 @@ const Effect = (F, cleanup = () => {}) => {
           y => cancellableApply(resolve)(g(y)),
         ),
       cleanup,
+      [...cancellations, cancel],
     );
 
   const fork = (reject, resolve) => {
@@ -68,7 +78,7 @@ const Effect = (F, cleanup = () => {}) => {
     };
     F(reject, resolver);
     return () => {
-      toCancel = true;
+      cancellations.forEach(f => f());
     };
   };
 
@@ -97,7 +107,7 @@ const cancel = run()
     return x;
   })
   .chain(x =>
-    Effect((reject, resolve) => {
+    Effect((_, resolve) => {
       setTimeout(() => {
         console.log('Second Finished');
         resolve(x);
