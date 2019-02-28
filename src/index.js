@@ -1,6 +1,8 @@
 let toCancel = false;
-const empty = _ => Effect(_ => {});
+
 const Effect = (F, cleanup = () => {}) => {
+  const empty = _ => Effect(() => {}, cleanup);
+
   const cancellableApply = (f, g) => (...args) => {
     if (toCancel) {
       return g ? g() : null;
@@ -75,7 +77,6 @@ const Effect = (F, cleanup = () => {}) => {
 
 Effect.of = x => Effect((_, resolve) => resolve(x));
 Effect.rejected = x => Effect(reject => reject(x));
-Effect.empty = empty;
 Effect.toString = () => 'Effect';
 
 const run = () =>
@@ -89,7 +90,7 @@ const run = () =>
 const cancel = run()
   .map(x => {
     cancel();
-    return x + '!';
+    return `${x} !`;
   })
   .map(x => {
     console.log(x);
