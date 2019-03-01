@@ -3,7 +3,6 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
 
   const cancel = () => {
     toCancel = true;
-    console.log('Cancelled');
   };
 
   const empty = _ => Effect(() => {}, cleanup, true);
@@ -71,14 +70,10 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     );
 
   const fork = (reject, resolve) => {
-    const resolver = (...args) => {
-      if (!toCancel) {
-        resolve(...args);
-      }
-    };
-    F(reject, resolver);
+    F(reject, resolve);
     return () => {
       cancellations.forEach(f => f());
+      cleanup();
     };
   };
 
@@ -89,29 +84,4 @@ Effect.of = x => Effect((_, resolve) => resolve(x));
 Effect.rejected = x => Effect(reject => reject(x));
 Effect.toString = () => 'Effect';
 
-const run = () =>
-  Effect((_, resolve) => {
-    setTimeout(() => {
-      console.log('First Finished');
-      resolve('Finished');
-    }, 1000);
-  });
-
-const cancel = run()
-  .map(x => {
-    cancel();
-    return `${x} !`;
-  })
-  .map(x => {
-    console.log(x);
-    return x;
-  })
-  .chain(x =>
-    Effect((_, resolve) => {
-      setTimeout(() => {
-        console.log('Second Finished');
-        resolve(x);
-      }, 1000);
-    }),
-  )
-  .fork(console.log, console.log);
+export default Effect;
