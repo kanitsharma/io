@@ -22,6 +22,39 @@ test.cb('Functor Law, fmap id = id', t => {
     );
 });
 
+test.cb('Functor Law. fmap (f . g)  ==  fmap f . fmap g', t => {
+  const compose = f => g => (...args) => f(g(...args));
+  const f = x => x + 10;
+  const g = x => x - 10;
+  const first = x =>
+    Effect.of(x).map(
+      compose(
+        g,
+        f,
+      ),
+    );
+  const second = x =>
+    Effect.of(x)
+      .map(f)
+      .map(g);
+
+  // Assertion
+  first(100)
+    .chain(x =>
+      second(100).map(y => {
+        console.log(x, y);
+        t.is(x, y);
+        return y;
+      }),
+    )
+    .fork(
+      () => {},
+      () => {
+        t.end();
+      },
+    );
+});
+
 test.cb('Chain Test', t => {
   Effect((_, resolve) => {
     resolve('First');
