@@ -8,6 +8,7 @@
   "devDependencies": {
     "@enginite/libstarter": "1.0.1",
     "@hellpack/eslint-config-hellpack": "^2.0.0-alpha.5",
+    "ava": "^1.2.1",
     "eslint": "^5.14.1",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-prettier": "^3.0.1",
@@ -16,6 +17,7 @@
   "scripts": {
     "dev": "en-libstarter dev",
     "build": "en-libstarter build",
-    "cli": "en-libstarter cli"
+    "cli": "en-libstarter cli",
+    "test": "yarn build && ava test/index.js --watch"
   }
 }
