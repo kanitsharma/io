@@ -50,3 +50,33 @@ test.cb('Homomorphism, pure f <*> pure x = pure (f x) ', t => {
       },
     );
 });
+
+test.cb('Parallelism', t => {
+  const f = x => y => x + y;
+  let firstLoaded = false;
+  let secondLoaded = false;
+
+  const M1 = Effect((_, resolve) => {
+    setTimeout(() => {
+      firstLoaded = true;
+      resolve(10);
+    }, 1000);
+  });
+
+  const M2 = Effect((_, resolve) => {
+    setTimeout(() => {
+      secondLoaded = true;
+      resolve(10);
+    }, 1000);
+  });
+
+  Effect.of(f)
+    .ap(M1)
+    .ap(M2)
+    .fork(() => {}, () => {});
+
+  setTimeout(() => {
+    t.is(firstLoaded, secondLoaded);
+    t.end();
+  }, 1100);
+});
