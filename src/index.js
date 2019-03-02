@@ -14,16 +14,56 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     return f(...args);
   };
 
-  const ap = m => chain(
-    x =>  m.map(x)
-  )
+  const ap = m =>
+    Effect((reject, resolve) => {
+      let fn = false;
+      let val = false;
+      let rejected = false;
+
+      const rejecter = x => {
+        if (!rejected) {
+          rejected = true;
+          return reject(x);
+        }
+      };
+
+      const resolver = setter => x => {
+        if (rejected) {
+          return;
+        }
+
+        setter(x);
+
+        if (fn && val) {
+          return resolve(fn(val));
+        } else {
+          return x;
+        }
+      };
+
+      //Parent Fork to get function
+      F(
+        rejecter,
+        resolver(x => {
+          fn = x;
+        }),
+      );
+
+      //M fork to get the argument
+      m.fork(
+        rejecter,
+        resolver(x => {
+          val = x;
+        }),
+      );
+    }, cleanup);
 
   const map = f =>
     Effect(
       (reject, resolve) =>
         F(
           x => cancellableApply(reject)(x),
-          y => cancellableApply(resolve)(f(y))
+          y => cancellableApply(resolve)(f(y)),
         ),
       cleanup,
       [...cancellations, cancel],
@@ -77,7 +117,9 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     );
 
   const fork = (reject, resolve) => {
-    F(reject, resolve);
+    const resolver = x => (toCancel ? x : resolve(x));
+
+    F(reject, resolver);
     return () => {
       cancellations.forEach(f => f());
       cleanup();
