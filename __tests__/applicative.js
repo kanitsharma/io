@@ -26,28 +26,27 @@ test.cb('Identity, pure id <*> v = v ', t => {
     );
 });
 
-// Cant prove Homomorphism
-// test.cb('Homomorphism, f <*> pure x = pure (f x) ', t => {
-//   // lift :: return
-//   const pure = x => Effect.of(x);
-//   const f = x => x + 10;
-//   const x = Effect.of(100);
+test.cb('Homomorphism, pure f <*> pure x = pure (f x) ', t => {
+  // lift :: return
+  const pure = x => Effect.of(x);
+  const f = x => x + 10;
+  const x = 100;
 
-//   const first = pure(f).ap(x);
-//   const second = pure(f(x));
+  const first = pure(f).ap(pure(x));
+  const second = pure(f(x));
 
-//   // Assertion
-//   first
-//     .chain(z =>
-//       second.map(y => {
-//         t.is(z, y);
-//         return y;
-//       }),
-//     )
-//     .fork(
-//       () => {},
-//       () => {
-//         t.end();
-//       },
-//     );
-// });
+  // Assertion
+  first
+    .chain(z =>
+      second.map(y => {
+        t.is(z, y);
+        return y;
+      }),
+    )
+    .fork(
+      () => {},
+      () => {
+        t.end();
+      },
+    );
+});
