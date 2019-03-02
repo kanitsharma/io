@@ -1,6 +1,17 @@
 import test from 'ava';
 import Effect from '../build/main';
 
+test.cb('Map Test', t => {
+  Effect((_, resolve) => {
+    resolve('First');
+  })
+    .map(x => `${x} Second`)
+    .fork(null, x => {
+      t.is(x, 'First Second');
+      t.end();
+    });
+});
+
 test.cb('Chain Test', t => {
   Effect((_, resolve) => {
     resolve('First');

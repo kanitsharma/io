@@ -39,7 +39,6 @@ test.cb(
     first(100)
       .chain(x =>
         second(100).map(y => {
-          console.log(x, y);
           t.is(x, y);
           return y;
         }),
