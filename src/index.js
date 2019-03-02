@@ -115,16 +115,23 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
       cleanup,
       [...cancellations, cancel],
     );
+    
+  const runCancellations = () => {
+    cancellations.forEach(f => f());
+    cleanup();
+  };
 
   const fork = (reject, resolve) => {
     const resolver = x => (toCancel ? x : resolve(x));
 
     F(reject, resolver);
-    return () => {
-      cancellations.forEach(f => f());
-      cleanup();
-    };
+    
+    return {
+      cancel: runCancellations,
+      cleanup
+    }
   };
+
 
   return { map, chain, empty, orElse, fold, cata, bimap, fork, ap };
 };
