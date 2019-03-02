@@ -41,7 +41,7 @@ test.cb('Cancellation check', t => {
       },
     );
 
-  const cancel = run()
+  const { cancel } = run()
     .map(x => {
       cancel();
       return x;
