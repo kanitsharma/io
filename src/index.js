@@ -14,8 +14,10 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     return f(...args);
   };
 
-  const ap = m =>
-    Effect((reject, resolve) => {
+  const ap = m => {
+    let fullCleanUp = () => {}
+
+    return Effect((reject, resolve) => {
       let fn = false;
       let val = false;
       let rejected = false;
@@ -42,7 +44,7 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
       };
 
       //Parent Fork to get function
-      F(
+      const { cleanup : cleanup1 } = F(
         rejecter,
         resolver(x => {
           fn = x;
@@ -50,13 +52,19 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
       );
 
       //M fork to get the argument
-      m.fork(
+      const { cleanup: cleanup2 } = m.fork(
         rejecter,
         resolver(x => {
           val = x;
         }),
       );
-    }, cleanup);
+
+      fullCleanUp = () => {
+        cleanup1();
+        cleanup2()
+      }
+    }, fullCleanUp);
+  }
 
   const map = f =>
     Effect(
