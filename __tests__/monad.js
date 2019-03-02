@@ -48,3 +48,27 @@ test.cb('Right identity, m >>= return = m', t => {
       },
     );
 });
+
+test.cb('Right identity, (m >>= f) >>= g = m >>= (x -> f x >>= g)', t => {
+  const f = x => Effect.of(x + 10);
+  const g = x => Effect.of(x - 10);
+  const m = Effect.of(100);
+
+  const first = m.chain(f).chain(g);
+  const second = m.chain(x => f(x).chain(g));
+
+  // Assertion
+  first
+    .chain(x =>
+      second.map(y => {
+        t.is(x, y);
+        return y;
+      }),
+    )
+    .fork(
+      () => {},
+      () => {
+        t.end();
+      },
+    );
+});
