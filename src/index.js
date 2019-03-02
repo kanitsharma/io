@@ -14,6 +14,14 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     return f(...args);
   };
 
+  const ap = m => m.chain(z => Effect(
+    (reject, resolve) =>
+      F(
+        x => cancellableApply(reject)(x),
+        y => cancellableApply(resolve)(y(z))
+      )
+  ))
+
   const map = f =>
     Effect(
       (reject, resolve) =>
@@ -80,7 +88,7 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     };
   };
 
-  return { map, chain, empty, orElse, fold, cata, bimap, fork };
+  return { map, chain, empty, orElse, fold, cata, bimap, fork, ap };
 };
 
 Effect.of = x => Effect((_, resolve) => resolve(x));
