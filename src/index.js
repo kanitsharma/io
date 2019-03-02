@@ -14,13 +14,9 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     return f(...args);
   };
 
-  const ap = m => m.chain(z => Effect(
-    (reject, resolve) =>
-      F(
-        x => cancellableApply(reject)(x),
-        y => cancellableApply(resolve)(y(z))
-      )
-  ))
+  const ap = m => chain(
+    x =>  m.map(x)
+  )
 
   const map = f =>
     Effect(

@@ -14,7 +14,6 @@ test.cb('Identity, pure id <*> v = v ', t => {
   first
     .chain(x =>
       second.map(y => {
-        console.log(x, y);
         t.is(x, y);
         return y;
       }),
@@ -26,3 +25,29 @@ test.cb('Identity, pure id <*> v = v ', t => {
       },
     );
 });
+
+// Cant prove Homomorphism
+// test.cb('Homomorphism, f <*> pure x = pure (f x) ', t => {
+//   // lift :: return
+//   const pure = x => Effect.of(x);
+//   const f = x => x + 10;
+//   const x = Effect.of(100);
+
+//   const first = pure(f).ap(x);
+//   const second = pure(f(x));
+
+//   // Assertion
+//   first
+//     .chain(z =>
+//       second.map(y => {
+//         t.is(z, y);
+//         return y;
+//       }),
+//     )
+//     .fork(
+//       () => {},
+//       () => {
+//         t.end();
+//       },
+//     );
+// });
