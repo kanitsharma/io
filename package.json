@@ -18,6 +18,6 @@
     "dev": "en-libstarter dev",
     "build": "en-libstarter build",
     "cli": "en-libstarter cli",
-    "test": "yarn build && ava test/index.js --watch"
+    "test": "yarn build && ava --watch"
   }
 }
