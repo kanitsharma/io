@@ -5,7 +5,7 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     toCancel = true;
   };
 
-  const empty = _ => Effect(() => {}, cleanup, true);
+  const empty = _ => Effect(() => {}, cleanup);
 
   const cancellableApply = (f, g) => (...args) => {
     if (toCancel) {
@@ -17,7 +17,10 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
   const map = f =>
     Effect(
       (reject, resolve) =>
-        F(x => reject(x), y => cancellableApply(resolve)(f(y))),
+        F(
+          x => cancellableApply(reject)(x),
+          y => cancellableApply(resolve)(f(y))
+        ),
       cleanup,
       [...cancellations, cancel],
     );
@@ -26,7 +29,7 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     Effect(
       (reject, resolve) =>
         F(
-          x => reject(x),
+          x => cancellableApply(reject)(x),
           y => cancellableApply(f, empty)(y).fork(reject, resolve),
         ),
       cleanup,
