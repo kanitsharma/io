@@ -15,7 +15,7 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
   };
 
   const ap = m => {
-    let fullCleanUp = () => {}
+    let fullCleanUp = () => {};
 
     return Effect((reject, resolve) => {
       let fn = false;
@@ -23,10 +23,12 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
       let rejected = false;
 
       const rejecter = x => {
-        if (!rejected) {
-          rejected = true;
-          return reject(x);
+        if (rejected) {
+          return x;
         }
+
+        rejected = true;
+        return reject(x);
       };
 
       const resolver = setter => x => {
@@ -37,22 +39,20 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
         setter(x);
 
         if (fn && val) {
-          return resolve(fn(val));
-        } else {
-          return x;
+          resolve(fn(val));
         }
       };
 
-      //Parent Fork to get function
-      const { cleanup : cleanup1 } = F(
+      // Parent Fork to get function
+      F(
         rejecter,
         resolver(x => {
           fn = x;
         }),
       );
 
-      //M fork to get the argument
-      const { cleanup: cleanup2 } = m.fork(
+      // M fork to get the argument
+      const { cleanup: cleanup1 } = m.fork(
         rejecter,
         resolver(x => {
           val = x;
@@ -61,10 +61,10 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
 
       fullCleanUp = () => {
         cleanup1();
-        cleanup2()
-      }
+        cleanup();
+      };
     }, fullCleanUp);
-  }
+  };
 
   const map = f =>
     Effect(
@@ -123,7 +123,7 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
       cleanup,
       [...cancellations, cancel],
     );
-    
+
   const runCancellations = () => {
     cancellations.forEach(f => f());
     cleanup();
@@ -133,13 +133,12 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     const resolver = x => (toCancel ? x : resolve(x));
 
     F(reject, resolver);
-    
+
     return {
       cancel: runCancellations,
-      cleanup
-    }
+      cleanup,
+    };
   };
-
 
   return { map, chain, empty, orElse, fold, cata, bimap, fork, ap };
 };
