@@ -1,11 +1,11 @@
-const Effect = (F, cleanup = () => {}, cancellations = []) => {
+const Effect = (F, cancellations = []) => {
   let toCancel = false;
 
   const cancel = () => {
     toCancel = true;
   };
 
-  const empty = _ => Effect(() => {}, cleanup);
+  const empty = _ => Effect(() => {});
 
   const cancellableApply = (f, g) => (...args) => {
     if (toCancel) {
@@ -14,10 +14,8 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     return f(...args);
   };
 
-  const ap = m => {
-    let fullCleanUp = () => {};
-
-    return Effect((reject, resolve) => {
+  const ap = m =>
+    Effect((reject, resolve) => {
       let fn;
       let val;
       let rejected = false;
@@ -44,7 +42,7 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
       };
 
       // child fork to get the argument
-      const { cleanup: cleanup1 } = m.fork(
+      m.fork(
         rejecter,
         resolver(x => {
           val = x;
@@ -58,13 +56,7 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
           fn = x;
         }),
       );
-
-      fullCleanUp = () => {
-        cleanup1();
-        cleanup();
-      };
-    }, fullCleanUp);
-  };
+    });
 
   const map = f =>
     Effect(
@@ -73,18 +65,34 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
           x => cancellableApply(reject)(x),
           y => cancellableApply(resolve)(f(y)),
         ),
-      cleanup,
       [...cancellations, cancel],
     );
 
   const chain = f =>
     Effect(
-      (reject, resolve) =>
-        F(
+      (reject, resolve) => {
+        let innerCleanup;
+        const parentCleanup = F(
           x => cancellableApply(reject)(x),
-          y => cancellableApply(f, empty)(y).fork(reject, resolve),
-        ),
-      cleanup,
+          y =>
+            f(y).fork(
+              reject,
+              x => cancellableApply(resolve)(x),
+              // If the chained Effect is run, we get its cleanup in the callback
+              cleanup => {
+                innerCleanup = cleanup;
+              },
+            ),
+        );
+
+        // Composed cleanup function
+        return () => {
+          parentCleanup();
+          if (innerCleanup) {
+            innerCleanup();
+          }
+        };
+      },
       [...cancellations, cancel],
     );
 
@@ -95,7 +103,6 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
           x => cancellableApply(f)(x).fork(reject, resolve),
           y => cancellableApply(resolve)(y),
         ),
-      cleanup,
       [...cancellations, cancel],
     );
 
@@ -106,7 +113,6 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
           x => cancellableApply(resolve)(f(x)),
           y => cancellableApply(resolve)(g(y)),
         ),
-      cleanup,
       [...cancellations, cancel],
     );
 
@@ -120,24 +126,24 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
           x => cancellableApply(reject)(f(x)),
           y => cancellableApply(resolve)(g(y)),
         ),
-      cleanup,
       [...cancellations, cancel],
     );
 
-  const runCancellations = () => {
+  const runCancellations = cleanup => () => {
     cancellations.forEach(f => f());
     cleanup();
   };
 
-  const fork = (reject, resolve) => {
+  const fork = (reject, resolve, callBack) => {
     const resolver = x => (toCancel ? x : resolve(x));
+    const cleanup = F(reject, resolver);
 
-    F(reject, resolver);
+    // Callback to get inner cleanup function from a chained effect
+    if (callBack) {
+      callBack(cleanup);
+    }
 
-    return {
-      cancel: runCancellations,
-      cleanup,
-    };
+    return runCancellations(cleanup);
   };
 
   const toString = () => 'Effect';
