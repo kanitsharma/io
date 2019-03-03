@@ -27,21 +27,17 @@ test.cb('Chain Test', t => {
     });
 });
 
-test.cb('Cancellation check', t => {
+test.cb('Cancellation and Cleanup Test', t => {
   const run = () =>
-    Effect(
-      (_, resolve) => {
-        setTimeout(() => {
-          console.log('First Running');
-          resolve('Finished');
-        }, 1000);
-      },
-      () => {
-        t.end();
-      },
-    );
+    Effect((_, resolve) => {
+      setTimeout(() => {
+        resolve('Finished');
+      }, 1000);
 
-  const { cancel } = run()
+      return () => t.end();
+    });
+
+  const cancel = run()
     .map(x => {
       cancel();
       return x;
