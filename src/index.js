@@ -18,8 +18,8 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     let fullCleanUp = () => {};
 
     return Effect((reject, resolve) => {
-      let fn = false;
-      let val = false;
+      let fn;
+      let val;
       let rejected = false;
 
       const rejecter = x => {
@@ -38,24 +38,24 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
 
         setter(x);
 
-        if (fn && val) {
+        if (fn !== undefined && val !== undefined) {
           resolve(fn(val));
         }
       };
+
+      // child fork to get the argument
+      const { cleanup: cleanup1 } = m.fork(
+        rejecter,
+        resolver(x => {
+          val = x;
+        }),
+      );
 
       // Parent Fork to get function
       F(
         rejecter,
         resolver(x => {
           fn = x;
-        }),
-      );
-
-      // M fork to get the argument
-      const { cleanup: cleanup1 } = m.fork(
-        rejecter,
-        resolver(x => {
-          val = x;
         }),
       );
 
@@ -140,11 +140,12 @@ const Effect = (F, cleanup = () => {}, cancellations = []) => {
     };
   };
 
-  return { map, chain, empty, orElse, fold, cata, bimap, fork, ap };
+  const toString = () => 'Effect';
+
+  return { map, chain, empty, orElse, fold, cata, bimap, fork, ap, toString };
 };
 
 Effect.of = x => Effect((_, resolve) => resolve(x));
 Effect.rejected = x => Effect(reject => reject(x));
-Effect.toString = () => 'Effect';
 
 export default Effect;

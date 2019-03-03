@@ -51,6 +51,66 @@ test.cb('Homomorphism, pure f <*> pure x = pure (f x) ', t => {
     );
 });
 
+test.cb('Interchange, u <*> pure y = pure ($ y) <*> u ', t => {
+  // lift :: return
+  const pure = x => Effect.of(x);
+  const f = x => x + 10;
+  const u = Effect.of(f);
+  const y = 100;
+  const $ = x => g => g(x);
+
+  const first = u.ap(pure(y));
+  const second = pure($(y)).ap(u);
+
+  // Assertion
+  first
+    .chain(z =>
+      second.map(x => {
+        t.is(z, x);
+        return x;
+      }),
+    )
+    .fork(
+      () => {},
+      () => {
+        t.end();
+      },
+    );
+});
+
+test.cb('Composition, pure (.) <*> u <*> v <*> w = u <*> (v <*> w) ', t => {
+  // lift :: return
+  const add = x => x + 10;
+  const sub = x => x - 10;
+  const compose = f1 => f2 => arg => f1(f2(arg));
+  const pure = x => Effect.of(x);
+  const u = Effect.of(add);
+  const v = Effect.of(sub);
+  const w = Effect.of(10);
+
+  const first = pure(compose)
+    .ap(u)
+    .ap(v)
+    .ap(w);
+
+  const second = u.ap(v.ap(w));
+
+  // Assertion
+  first
+    .chain(z =>
+      second.map(x => {
+        t.is(z, x);
+        return x;
+      }),
+    )
+    .fork(
+      () => {},
+      () => {
+        t.end();
+      },
+    );
+});
+
 test.cb('Parallelism', t => {
   const f = x => y => x + y;
   let firstLoaded = false;
