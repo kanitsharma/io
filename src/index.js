@@ -41,21 +41,26 @@ const Effect = (F, cancellations = []) => {
         }
       };
 
-      // child fork to get the argument
-      m.fork(
+      // child fork to get the argument and cleanup
+      const innerCleanup = m.fork(
         rejecter,
         resolver(x => {
           val = x;
         }),
       );
 
-      // Parent Fork to get function
-      F(
+      // Parent Fork to get function and cleanup
+      const outerCleanup = F(
         rejecter,
         resolver(x => {
           fn = x;
         }),
       );
+
+      return () => {
+        innerCleanup();
+        outerCleanup();
+      };
     });
 
   const map = f =>
