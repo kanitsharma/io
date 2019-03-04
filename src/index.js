@@ -94,6 +94,10 @@ const Effect = (F, cancellations = []) => {
             ),
         );
 
+        if (parentCleanup && typeof parentCleanup !== 'function') {
+          throw 'Side Effects should only return functions for cleanup';
+        }
+
         // Composed cleanup function
         return () => {
           parentCleanup();
@@ -138,7 +142,7 @@ const Effect = (F, cancellations = []) => {
       [...cancellations, cancel],
     );
 
-  const runCancellations = (cleanup = () => {}) => () => {
+  const runCancellations = cleanup => () => {
     cancellations.forEach(f => f());
     cleanup();
   };
@@ -150,6 +154,10 @@ const Effect = (F, cancellations = []) => {
 
     const resolver = x => (toCancel ? x : resolve(x));
     const cleanup = F(reject, resolver);
+
+    if (cleanup && typeof cleanup !== 'function') {
+      throw 'Side Effects should only return functions for cleanup';
+    }
 
     // Callback to get inner cleanup function from a chained effect
     if (callBack) {

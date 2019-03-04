@@ -23,3 +23,31 @@ test.cb('Missing Argument in fork', t => {
   }
   t.end();
 });
+
+test.cb('Cleanup error handling test', t => {
+  try {
+    Effect((_, resolve) => {
+      resolve('First');
+
+      return () => {};
+    })
+      .chain(x =>
+        Effect((_, resolve) => {
+          resolve(`${x} Second`);
+
+          return () => {};
+        }),
+      )
+      .chain(x =>
+        Effect((_, resolve) => {
+          resolve(x);
+
+          return 1;
+        }),
+      )
+      .fork(() => {}, () => {});
+  } catch (e) {
+    t.is(e, 'Side Effects should only return functions for cleanup');
+    t.end();
+  }
+});
