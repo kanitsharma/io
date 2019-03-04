@@ -37,12 +37,12 @@ const Effect = (F, cancellations = []) => {
         setter(x);
 
         if (fn !== undefined && val !== undefined) {
-          resolve(fn(val));
+          cancellableApply(resolve)(fn(val));
         }
       };
 
       // child fork to get the argument
-      m.fork(
+      const innerCleanup = m.fork(
         rejecter,
         resolver(x => {
           val = x;
@@ -50,12 +50,17 @@ const Effect = (F, cancellations = []) => {
       );
 
       // Parent Fork to get function
-      F(
+      const outerCleanup = F(
         rejecter,
         resolver(x => {
           fn = x;
         }),
       );
+
+      return () => {
+        innerCleanup();
+        outerCleanup();
+      };
     });
 
   const map = f =>
@@ -129,7 +134,7 @@ const Effect = (F, cancellations = []) => {
       [...cancellations, cancel],
     );
 
-  const runCancellations = cleanup => () => {
+  const runCancellations = (cleanup = () => {}) => () => {
     cancellations.forEach(f => f());
     cleanup();
   };
