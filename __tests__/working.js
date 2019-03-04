@@ -6,10 +6,13 @@ test.cb('Map Test', t => {
     resolve('First');
   })
     .map(x => `${x} Second`)
-    .fork(null, x => {
-      t.is(x, 'First Second');
-      t.end();
-    });
+    .fork(
+      () => {},
+      x => {
+        t.is(x, 'First Second');
+        t.end();
+      },
+    );
 });
 
 test.cb('Chain Test', t => {
@@ -21,10 +24,13 @@ test.cb('Chain Test', t => {
         resolve(`${x} Second`);
       }),
     )
-    .fork(null, x => {
-      t.is(x, 'First Second');
-      t.end();
-    });
+    .fork(
+      () => {},
+      x => {
+        t.is(x, 'First Second');
+        t.end();
+      },
+    );
 });
 
 test.cb('Cancellation and Cleanup Test', t => {

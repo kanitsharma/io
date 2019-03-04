@@ -145,7 +145,7 @@ const Effect = (F, cancellations = []) => {
 
   const fork = (reject, resolve, callBack) => {
     if (typeof reject !== 'function' || typeof resolve !== 'function') {
-      throw 'Fork should be provided this reject and resolve functions. fork(reject, resolve)';
+      throw 'Fork should always be provided this onRejected and onResolved functions. fork(onRejected, onResolved)';
     }
 
     const resolver = x => (toCancel ? x : resolve(x));
