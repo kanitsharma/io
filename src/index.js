@@ -19,59 +19,62 @@ const Effect = (F, cancellations = []) => {
   };
 
   const ap = m =>
-    Effect((reject, resolve) => {
-      let fn;
-      let val;
-      let rejected = false;
+    Effect(
+      (reject, resolve) => {
+        let fn;
+        let val;
+        let rejected = false;
 
-      const rejecter = x => {
-        if (rejected) {
-          return x;
+        const rejecter = x => {
+          if (rejected) {
+            return x;
+          }
+
+          rejected = true;
+          return cancellableApply(reject)(x);
+        };
+
+        const resolver = setter => x => {
+          if (rejected) {
+            return;
+          }
+
+          setter(x);
+
+          if (fn !== undefined && val !== undefined) {
+            cancellableApply(resolve)(fn(val));
+          }
+        };
+
+        // child fork to get the argument
+        const innerCleanup = m.fork(
+          rejecter,
+          resolver(x => {
+            val = x;
+          }),
+        );
+        if (innerCleanup && typeof innerCleanup !== 'function') {
+          throw 'Side Effects should only return functions for cleanup';
         }
 
-        rejected = true;
-        return cancellableApply(reject)(x);
-      };
-
-      const resolver = setter => x => {
-        if (rejected) {
-          return;
+        // Parent Fork to get function
+        const outerCleanup = F(
+          rejecter,
+          resolver(x => {
+            fn = x;
+          }),
+        );
+        if (innerCleanup && typeof innerCleanup !== 'function') {
+          throw 'Side Effects should only return functions for cleanup';
         }
 
-        setter(x);
-
-        if (fn !== undefined && val !== undefined) {
-          cancellableApply(resolve)(fn(val));
-        }
-      };
-
-      // child fork to get the argument
-      const innerCleanup = m.fork(
-        rejecter,
-        resolver(x => {
-          val = x;
-        }),
-      );
-      if (innerCleanup && typeof innerCleanup !== 'function') {
-        throw 'Side Effects should only return functions for cleanup';
-      }
-
-      // Parent Fork to get function
-      const outerCleanup = F(
-        rejecter,
-        resolver(x => {
-          fn = x;
-        }),
-      );
-      if (innerCleanup && typeof innerCleanup !== 'function') {
-        throw 'Side Effects should only return functions for cleanup';
-      }
-
-      return () => {
-        if (innerCleanup) innerCleanup();
-        if (outerCleanup) outerCleanup();
-      };
-    });
+        return () => {
+          if (innerCleanup) innerCleanup();
+          if (outerCleanup) outerCleanup();
+        };
+      },
+      [...cancellations, cancel],
+    );
 
   const map = f =>
     Effect(
