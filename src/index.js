@@ -175,9 +175,9 @@ const IO = (F, cancellations = []) => {
     return runCancellations(cleanup);
   };
 
-  const toString = () => 'IO';
+  const show = () => `IO(${F.toString()})`;
 
-  return { map, chain, empty, orElse, fold, cata, bimap, fork, ap, toString };
+  return { map, chain, empty, orElse, fold, cata, bimap, fork, ap, show };
 };
 
 IO.of = x => IO((_, resolve) => resolve(x));
