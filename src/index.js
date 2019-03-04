@@ -1,4 +1,8 @@
 const Effect = (F, cancellations = []) => {
+  if (typeof F !== 'function') {
+    throw 'Side Effects can only be functions';
+  }
+
   let toCancel = false;
 
   const cancel = () => {
@@ -26,7 +30,7 @@ const Effect = (F, cancellations = []) => {
         }
 
         rejected = true;
-        return reject(x);
+        return cancellableApply(reject)(x);
       };
 
       const resolver = setter => x => {
@@ -140,6 +144,10 @@ const Effect = (F, cancellations = []) => {
   };
 
   const fork = (reject, resolve, callBack) => {
+    if (typeof reject !== 'function' || typeof resolve !== 'function') {
+      throw 'Fork should be provided this reject and resolve functions. fork(reject, resolve)';
+    }
+
     const resolver = x => (toCancel ? x : resolve(x));
     const cleanup = F(reject, resolver);
 
