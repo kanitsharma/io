@@ -1,6 +1,6 @@
-const Effect = (F, cancellations = []) => {
+const IO = (F, cancellations = []) => {
   if (typeof F !== 'function') {
-    throw 'Side Effects can only be functions';
+    throw 'Side IOs can only be functions';
   }
 
   let toCancel = false;
@@ -9,7 +9,7 @@ const Effect = (F, cancellations = []) => {
     toCancel = true;
   };
 
-  const empty = _ => Effect(() => {});
+  const empty = _ => IO(() => {});
 
   const cancellableApply = (f, g) => (...args) => {
     if (toCancel) {
@@ -19,7 +19,7 @@ const Effect = (F, cancellations = []) => {
   };
 
   const ap = m =>
-    Effect(
+    IO(
       (reject, resolve) => {
         let fn;
         let val;
@@ -54,7 +54,7 @@ const Effect = (F, cancellations = []) => {
           }),
         );
         if (innerCleanup && typeof innerCleanup !== 'function') {
-          throw 'Side Effects should only return functions for cleanup';
+          throw 'Side IOs should only return functions for cleanup';
         }
 
         // Parent Fork to get function
@@ -65,7 +65,7 @@ const Effect = (F, cancellations = []) => {
           }),
         );
         if (innerCleanup && typeof innerCleanup !== 'function') {
-          throw 'Side Effects should only return functions for cleanup';
+          throw 'Side IOs should only return functions for cleanup';
         }
 
         return () => {
@@ -77,7 +77,7 @@ const Effect = (F, cancellations = []) => {
     );
 
   const map = f =>
-    Effect(
+    IO(
       (reject, resolve) =>
         F(
           x => cancellableApply(reject)(x),
@@ -87,7 +87,7 @@ const Effect = (F, cancellations = []) => {
     );
 
   const chain = f =>
-    Effect(
+    IO(
       (reject, resolve) => {
         let innerCleanup;
         const parentCleanup = F(
@@ -96,7 +96,7 @@ const Effect = (F, cancellations = []) => {
             f(y).fork(
               reject,
               x => cancellableApply(resolve)(x),
-              // If the chained Effect is run, we get its cleanup in the callback
+              // If the chained IO is run, we get its cleanup in the callback
               cleanup => {
                 innerCleanup = cleanup;
               },
@@ -104,7 +104,7 @@ const Effect = (F, cancellations = []) => {
         );
 
         if (parentCleanup && typeof parentCleanup !== 'function') {
-          throw 'Side Effects should only return functions for cleanup';
+          throw 'Side IOs should only return functions for cleanup';
         }
 
         // Composed cleanup function
@@ -119,7 +119,7 @@ const Effect = (F, cancellations = []) => {
     );
 
   const orElse = f =>
-    Effect(
+    IO(
       (reject, resolve) =>
         F(
           x => cancellableApply(f)(x).fork(reject, resolve),
@@ -129,7 +129,7 @@ const Effect = (F, cancellations = []) => {
     );
 
   const fold = (f, g) =>
-    Effect(
+    IO(
       (_, resolve) =>
         F(
           x => cancellableApply(resolve)(f(x)),
@@ -142,7 +142,7 @@ const Effect = (F, cancellations = []) => {
     cancellableApply(fold)(pattern.Rejected, pattern.Resolved);
 
   const bimap = (f, g) =>
-    Effect(
+    IO(
       (reject, resolve) =>
         F(
           x => cancellableApply(reject)(f(x)),
@@ -164,10 +164,10 @@ const Effect = (F, cancellations = []) => {
     const cleanup = F(reject, x => cancellableApply(resolve)(x));
 
     if (cleanup && typeof cleanup !== 'function') {
-      throw 'Side Effects should only return functions for cleanup';
+      throw 'Side IOs should only return functions for cleanup';
     }
 
-    // Callback to get inner cleanup function from a chained effect
+    // Callback to get inner cleanup function from a chained IO
     if (callBack) {
       callBack(cleanup);
     }
@@ -175,12 +175,12 @@ const Effect = (F, cancellations = []) => {
     return runCancellations(cleanup);
   };
 
-  const toString = () => 'Effect';
+  const toString = () => 'IO';
 
   return { map, chain, empty, orElse, fold, cata, bimap, fork, ap, toString };
 };
 
-Effect.of = x => Effect((_, resolve) => resolve(x));
-Effect.rejected = x => Effect(reject => reject(x));
+IO.of = x => IO((_, resolve) => resolve(x));
+IO.rejected = x => IO(reject => reject(x));
 
-export default Effect;
+export default IO;

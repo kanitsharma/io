@@ -1,8 +1,8 @@
 import test from 'ava';
-import Effect from '../build/main';
+import IO from '../build/main';
 
 test.cb('Map Test', t => {
-  Effect((_, resolve) => {
+  IO((_, resolve) => {
     resolve('First');
   })
     .map(x => `${x} Second`)
@@ -16,11 +16,11 @@ test.cb('Map Test', t => {
 });
 
 test.cb('Chain Test', t => {
-  Effect((_, resolve) => {
+  IO((_, resolve) => {
     resolve('First');
   })
     .chain(x =>
-      Effect((_, resolve) => {
+      IO((_, resolve) => {
         resolve(`${x} Second`);
       }),
     )
@@ -35,7 +35,7 @@ test.cb('Chain Test', t => {
 
 test.cb('Cancellation and Cleanup Test', t => {
   const run = () =>
-    Effect((_, resolve) => {
+    IO((_, resolve) => {
       setTimeout(() => {
         resolve('Finished');
       }, 1000);
@@ -49,7 +49,7 @@ test.cb('Cancellation and Cleanup Test', t => {
       return x;
     })
     .chain(() =>
-      Effect((_, resolve) => {
+      IO((_, resolve) => {
         t.fail();
         setTimeout(() => {
           resolve('Failed');

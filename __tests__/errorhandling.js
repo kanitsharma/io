@@ -1,19 +1,19 @@
 import test from 'ava';
-import Effect from '../build/main';
+import IO from '../build/main';
 
-test.cb('Side Effect is not a function', t => {
+test.cb('Side IO is not a function', t => {
   try {
-    Effect(10);
+    IO(10);
     t.fail();
   } catch (e) {
-    t.is(e, 'Side Effects can only be functions');
+    t.is(e, 'Side IOs can only be functions');
   }
   t.end();
 });
 
 test.cb('Missing Argument in fork', t => {
   try {
-    Effect((_, resolve) => resolve(10)).fork();
+    IO((_, resolve) => resolve(10)).fork();
     t.fail();
   } catch (e) {
     t.is(
@@ -26,20 +26,20 @@ test.cb('Missing Argument in fork', t => {
 
 test.cb('Cleanup error handling test', t => {
   try {
-    Effect((_, resolve) => {
+    IO((_, resolve) => {
       resolve('First');
 
       return () => {};
     })
       .chain(x =>
-        Effect((_, resolve) => {
+        IO((_, resolve) => {
           resolve(`${x} Second`);
 
           return () => {};
         }),
       )
       .chain(x =>
-        Effect((_, resolve) => {
+        IO((_, resolve) => {
           resolve(x);
 
           return 1;
@@ -47,7 +47,7 @@ test.cb('Cleanup error handling test', t => {
       )
       .fork(() => {}, () => {});
   } catch (e) {
-    t.is(e, 'Side Effects should only return functions for cleanup');
+    t.is(e, 'Side IOs should only return functions for cleanup');
     t.end();
   }
 });

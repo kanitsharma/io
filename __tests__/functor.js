@@ -1,10 +1,10 @@
 import test from 'ava';
-import Effect from '../build/main';
+import IO from '../build/main';
 
 test.cb('Functors must preserve identity morphisms, fmap id = id', t => {
   const id = x => x;
-  const normal = x => Effect.of(id(x));
-  const mapped = x => Effect.of(x).map(id);
+  const normal = x => IO.of(id(x));
+  const mapped = x => IO.of(x).map(id);
 
   // Assertion
   normal(10)
@@ -28,10 +28,10 @@ test.cb(
     const compose = f => g => (...args) => f(g(...args));
     const f = x => x + 10;
     const g = x => x - 10;
-    const first = x => Effect.of(x).map(compose(f)(g));
+    const first = x => IO.of(x).map(compose(f)(g));
 
     const second = x =>
-      Effect.of(x)
+      IO.of(x)
         .map(f)
         .map(g);
 
