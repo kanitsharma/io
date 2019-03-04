@@ -5,6 +5,7 @@
     "eslint-plugin-import"
   ], 
   "rules": {
-    "no-throw-literal": 0
+    "no-throw-literal": 0,
+    "no-nested-ternary": 0
   }
 }

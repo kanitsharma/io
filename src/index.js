@@ -52,6 +52,9 @@ const Effect = (F, cancellations = []) => {
           val = x;
         }),
       );
+      if (innerCleanup && typeof innerCleanup !== 'function') {
+        throw 'Side Effects should only return functions for cleanup';
+      }
 
       // Parent Fork to get function
       const outerCleanup = F(
@@ -60,10 +63,13 @@ const Effect = (F, cancellations = []) => {
           fn = x;
         }),
       );
+      if (innerCleanup && typeof innerCleanup !== 'function') {
+        throw 'Side Effects should only return functions for cleanup';
+      }
 
       return () => {
-        innerCleanup();
-        outerCleanup();
+        if (innerCleanup) innerCleanup();
+        if (outerCleanup) outerCleanup();
       };
     });
 
@@ -152,8 +158,7 @@ const Effect = (F, cancellations = []) => {
       throw 'Fork should always be provided this onRejected and onResolved functions. fork(onRejected, onResolved)';
     }
 
-    const resolver = x => (toCancel ? x : resolve(x));
-    const cleanup = F(reject, resolver);
+    const cleanup = F(reject, x => cancellableApply(resolve)(x));
 
     if (cleanup && typeof cleanup !== 'function') {
       throw 'Side Effects should only return functions for cleanup';
