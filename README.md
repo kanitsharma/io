@@ -1,5 +1,6 @@
-# IO
-Lightweight monadic abstraction to "purely" handle side effects in javascript.
+<img src='logo.png' width='400' height='400' />
+
+# Lightweight monadic abstraction to "purely" handle side effects in javascript.
 
 ## An IO provides
 - Easy cancellation at any point during its computation and resource cleanup after that.
