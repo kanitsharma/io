@@ -18,6 +18,7 @@
     "dev": "en-libstarter dev",
     "build": "en-libstarter build",
     "cli": "en-libstarter cli",
-    "test": "yarn build && ava --watch"
+    "test": "yarn build && ava --watch",
+    "ci_test": "yarn build && ava"
   }
 }
