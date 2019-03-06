@@ -1,11 +1,11 @@
 import test from 'ava';
-import Effect from '../build/main';
+import IO from '../build/main';
 
 test.cb('Identity, pure id <*> v = v ', t => {
   // lift :: return
-  const pure = x => Effect.of(x);
+  const pure = x => IO.of(x);
   const id = x => x;
-  const v = Effect.of(100);
+  const v = IO.of(100);
 
   const first = pure(id).ap(v);
   const second = v;
@@ -28,7 +28,7 @@ test.cb('Identity, pure id <*> v = v ', t => {
 
 test.cb('Homomorphism, pure f <*> pure x = pure (f x) ', t => {
   // lift :: return
-  const pure = x => Effect.of(x);
+  const pure = x => IO.of(x);
   const f = x => x + 10;
   const x = 100;
 
@@ -53,9 +53,9 @@ test.cb('Homomorphism, pure f <*> pure x = pure (f x) ', t => {
 
 test.cb('Interchange, u <*> pure y = pure ($ y) <*> u ', t => {
   // lift :: return
-  const pure = x => Effect.of(x);
+  const pure = x => IO.of(x);
   const f = x => x + 10;
-  const u = Effect.of(f);
+  const u = IO.of(f);
   const y = 100;
   const $ = x => g => g(x);
 
@@ -83,10 +83,10 @@ test.cb('Composition, pure (.) <*> u <*> v <*> w = u <*> (v <*> w) ', t => {
   const add = x => x + 10;
   const sub = x => x - 10;
   const compose = f1 => f2 => arg => f1(f2(arg));
-  const pure = x => Effect.of(x);
-  const u = Effect.of(add);
-  const v = Effect.of(sub);
-  const w = Effect.of(10);
+  const pure = x => IO.of(x);
+  const u = IO.of(add);
+  const v = IO.of(sub);
+  const w = IO.of(10);
 
   const first = pure(compose)
     .ap(u)
@@ -116,21 +116,21 @@ test.cb('Parallelism', t => {
   let firstLoaded = false;
   let secondLoaded = false;
 
-  const M1 = Effect((_, resolve) => {
+  const M1 = IO((_, resolve) => {
     setTimeout(() => {
       firstLoaded = true;
       resolve(10);
     }, 1000);
   });
 
-  const M2 = Effect((_, resolve) => {
+  const M2 = IO((_, resolve) => {
     setTimeout(() => {
       secondLoaded = true;
       resolve(10);
     }, 1000);
   });
 
-  Effect.of(f)
+  IO.of(f)
     .ap(M1)
     .ap(M2)
     .fork(() => {}, () => {});

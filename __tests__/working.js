@@ -1,35 +1,41 @@
 import test from 'ava';
-import Effect from '../build/main';
+import IO from '../build/main';
 
 test.cb('Map Test', t => {
-  Effect((_, resolve) => {
+  IO((_, resolve) => {
     resolve('First');
   })
     .map(x => `${x} Second`)
-    .fork(null, x => {
-      t.is(x, 'First Second');
-      t.end();
-    });
+    .fork(
+      () => {},
+      x => {
+        t.is(x, 'First Second');
+        t.end();
+      },
+    );
 });
 
 test.cb('Chain Test', t => {
-  Effect((_, resolve) => {
+  IO((_, resolve) => {
     resolve('First');
   })
     .chain(x =>
-      Effect((_, resolve) => {
+      IO((_, resolve) => {
         resolve(`${x} Second`);
       }),
     )
-    .fork(null, x => {
-      t.is(x, 'First Second');
-      t.end();
-    });
+    .fork(
+      () => {},
+      x => {
+        t.is(x, 'First Second');
+        t.end();
+      },
+    );
 });
 
 test.cb('Cancellation and Cleanup Test', t => {
   const run = () =>
-    Effect((_, resolve) => {
+    IO((_, resolve) => {
       setTimeout(() => {
         resolve('Finished');
       }, 1000);
@@ -43,7 +49,7 @@ test.cb('Cancellation and Cleanup Test', t => {
       return x;
     })
     .chain(() =>
-      Effect((_, resolve) => {
+      IO((_, resolve) => {
         t.fail();
         setTimeout(() => {
           resolve('Failed');
