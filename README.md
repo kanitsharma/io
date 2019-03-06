@@ -1,4 +1,4 @@
-<img src='logo.png' width='400' height='400' />
+<img src='logo.png' width='400' height='400'  style='margin-bottom: -70px; transform: translateX(-50px);' />
 
 # Lightweight monadic abstraction to "purely" handle side effects in javascript.
 
