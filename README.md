@@ -1,4 +1,6 @@
-<img src='logo.png' width='400' height='400'  style='margin-bottom: -70px; transform: translateX(-50px);' />
+# <h1 style='font-size: 50px;' >IO</h1>
+
+[![Build Status](https://travis-ci.com/kanitsharma/io.svg?token=sGsp6ken9AnVBDihTPmf&branch=master)](https://travis-ci.com/kanitsharma/io)
 
 # Lightweight monadic abstraction to "purely" handle side effects in javascript.
 
