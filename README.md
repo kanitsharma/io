@@ -1,9 +1,6 @@
 <h1 align="center">
   <br>
   <a href="https://github.com/kanitsharma/io"><img src="logo.png" alt="io" width="200"></a>
-  <br>
-  IO
-  <br>
 </h1>
 
 <h4 align="center">Lightweight monadic abstraction to "purely" handle side effects in javascript.</h4>
