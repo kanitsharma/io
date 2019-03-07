@@ -12,6 +12,9 @@
   <a href="https://github.com/rajatsharma/hellpack">
         <img src="https://img.shields.io/badge/uses-hellpack%20%F0%9F%94%A5-%23414770.svg" alt="hellpack"/>
   </a>
+    <a href="https://github.com/kanitsharma/io/blob/license.md">
+        <img src="https://badgen.net/badge/license/MIT/blue" alt="license"/>
+  </a>
   <a href="https://travis-ci.com/kanitsharma/io">
         <img src="https://travis-ci.com/kanitsharma/io.svg?token=sGsp6ken9AnVBDihTPmf&branch=master" alt="travis"/>
   </a>
