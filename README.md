@@ -164,7 +164,23 @@ IO.of(x => y => x + y)
 //> 3
 ```
 
-#### Running IOs in parallel using Applicatives (Parallelism)
+#### fold
+Applies the left function to the rejection value, or the right function to the resolution value, depending on which is present, and resolves with the result.
+Can be used with other type constructors like Left | Right from Either.
+
+```javascript
+IO.of('hello')
+  .fold(Left, Right)
+  .fork(() => {}, console.log);
+  //> Right('hello')
+
+IO.reject('it broke')
+  .fold(Left, Right)
+  .fork(() => {}, console.log);
+  //> Left('it broke')
+```
+
+### Running IOs in parallel using Applicatives (Parallelism)
 If an IO containing a function with order > 1, then the IOs applied to it will run parallely.
 
 ```javascript
