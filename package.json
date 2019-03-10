@@ -1,10 +1,10 @@
 {
-  "name": "@kimera/io",
   "version": "0.1.0",
+  "name": "@kimera/io",
   "main": "build/main.js",
   "license": "MIT",
-  "private": true,
   "enginite": "0.1.4",
+  "description": "Lightweight monadic abstraction to 'purely' handle side effects in javascript.",
   "devDependencies": {
     "@enginite/libstarter": "1.0.1",
     "@hellpack/eslint-config-hellpack": "^2.0.0-alpha.5",
