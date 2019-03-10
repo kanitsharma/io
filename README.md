@@ -10,3 +10,23 @@
 - Ultra lightweight, Gzipped ~ 1kb.
 - Friendly Error Messages.
 - Follows Haskell laws for Functors, Applicatives and Monads [(See the tests for these laws)](https://github.com/kanitsharma/io/tree/master/__tests__).
+
+## Getting Started
+
+```
+  yarn add @kimera/io
+```
+or
+```
+  npm install --save @kimera/io
+```
+
+## Fetch Example
+
+```javascript
+import IO from '@kimera/io'
+
+const getData = url => IO((reject, resolve) => {
+  
+})
+```
