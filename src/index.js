@@ -182,5 +182,11 @@ const IO = (F, cancellations = []) => {
 
 IO.of = x => IO((_, resolve) => resolve(x));
 IO.rejected = x => IO(reject => reject(x));
+IO.encaseP = fn => (...args) =>
+  IO((reject, resolve) => {
+    fn(...args)
+      .then(resolve)
+      .catch(reject);
+  });
 
 export default IO;
