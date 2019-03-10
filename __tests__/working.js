@@ -1,6 +1,6 @@
 import test from 'ava';
-import IO from '../build/main';
 import fetch from 'node-fetch';
+import IO from '../build/main';
 
 test.cb('Map Test', t => {
   IO((_, resolve) => {
