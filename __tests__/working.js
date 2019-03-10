@@ -1,5 +1,6 @@
 import test from 'ava';
 import IO from '../build/main';
+import fetch from 'node-fetch';
 
 test.cb('Map Test', t => {
   IO((_, resolve) => {
@@ -57,4 +58,15 @@ test.cb('Cancellation and Cleanup Test', t => {
       }),
     )
     .fork(console.log, console.log);
+});
+
+test.cb('EncaseP Test', t => {
+  const pureFetch = IO.encaseP(fetch);
+
+  pureFetch('https://jsonplaceholder.typicode.com/todos/1')
+    .chain(IO.encaseP(response => response.json()))
+    .fork(console.error, response => {
+      t.is(response.userId, 1);
+      t.end();
+    });
 });
