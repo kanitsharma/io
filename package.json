@@ -1,5 +1,5 @@
 {
-  "name": "io",
+  "name": "@kimera/io",
   "version": "0.1.0",
   "main": "build/main.js",
   "license": "MIT",
