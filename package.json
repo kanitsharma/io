@@ -1,7 +1,7 @@
 {
   "name": "io",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "build/main.js",
   "license": "MIT",
   "private": true,
   "enginite": "0.1.4",
@@ -13,6 +13,7 @@
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-prettier": "^3.0.1",
     "node-fetch": "^2.3.0",
+    "np": "^4.0.2",
     "prettier": "^1.16.4"
   },
   "scripts": {
@@ -20,6 +21,29 @@
     "build": "en-libstarter build",
     "cli": "en-libstarter cli",
     "test": "yarn build && ava --watch",
-    "ci_test": "yarn build && ava"
-  }
+    "ci_test": "yarn build && ava",
+    "publish": "yarn build && np"
+  },
+  "author": {
+    "name": "Kanit Sharma",
+    "email": "kanitsharma@protonmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/kanitsharma/io/issues"
+  },
+  "homepage": "https://github.com/kanitsharma/io/blob/master/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kanitsharma/io"
+  },
+  "keywords": [
+    "functional-programming",
+    "side-effects",
+    "async",
+    "asynchronous",
+    "functional",
+    "monad",
+    "monadic",
+    "javascript"
+  ]
 }
