@@ -22,7 +22,7 @@
     "cli": "en-libstarter cli",
     "test": "yarn build && ava --watch",
     "ci_test": "yarn build && ava",
-    "publish": "yarn build && np"
+    "pb": "yarn build && np"
   },
   "author": {
     "name": "Kanit Sharma",
