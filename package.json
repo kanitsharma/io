@@ -4,6 +4,9 @@
   "main": "build/main.js",
   "license": "MIT",
   "enginite": "0.1.4",
+  "files": [
+    "build"
+  ],
   "description": "Lightweight monadic abstraction to 'purely' handle side effects in javascript.",
   "devDependencies": {
     "@enginite/libstarter": "1.0.1",
