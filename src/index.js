@@ -1,6 +1,6 @@
 const IO = (F, cancellations = []) => {
   if (typeof F !== 'function') {
-    throw 'Side IOs can only be functions';
+    throw 'SideEffects can only be functions';
   }
 
   let toCancel = false;
@@ -54,7 +54,7 @@ const IO = (F, cancellations = []) => {
           }),
         );
         if (innerCleanup && typeof innerCleanup !== 'function') {
-          throw 'Side IOs should only return functions for cleanup';
+          throw 'SideEffects should only return functions for cleanup';
         }
 
         // Parent Fork to get function
@@ -65,7 +65,7 @@ const IO = (F, cancellations = []) => {
           }),
         );
         if (innerCleanup && typeof innerCleanup !== 'function') {
-          throw 'Side IOs should only return functions for cleanup';
+          throw 'SideEffects should only return functions for cleanup';
         }
 
         return () => {
@@ -104,7 +104,7 @@ const IO = (F, cancellations = []) => {
         );
 
         if (parentCleanup && typeof parentCleanup !== 'function') {
-          throw 'Side IOs should only return functions for cleanup';
+          throw 'SideEffects should only return functions for cleanup';
         }
 
         // Composed cleanup function
@@ -164,7 +164,7 @@ const IO = (F, cancellations = []) => {
     const cleanup = F(reject, x => cancellableApply(resolve)(x));
 
     if (cleanup && typeof cleanup !== 'function') {
-      throw 'Side IOs should only return functions for cleanup';
+      throw 'SideEffects should only return functions for cleanup';
     }
 
     // Callback to get inner cleanup function from a chained IO
