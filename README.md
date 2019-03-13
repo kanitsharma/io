@@ -181,7 +181,7 @@ IO.reject('it broke')
 ```
 
 ### Running IOs in parallel using Applicatives (Parallelism)
-If an IO containing a function with order > 1, then the IOs applied to it will run parallely.
+If an IO contains a function with order greater than 1, then the IOs applied to it will run parallely.
 
 ```javascript
   const f = x => y => x + y;
