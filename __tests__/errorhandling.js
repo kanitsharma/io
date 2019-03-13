@@ -1,12 +1,12 @@
 import test from 'ava';
 import IO from '../build/main';
 
-test.cb('Side IO is not a function', t => {
+test.cb('SideEffect is not a function', t => {
   try {
     IO(10);
     t.fail();
   } catch (e) {
-    t.is(e, 'Side IOs can only be functions');
+    t.is(e, 'SideEffects can only be functions');
   }
   t.end();
 });
@@ -47,7 +47,7 @@ test.cb('Cleanup error handling test', t => {
       )
       .fork(() => {}, () => {});
   } catch (e) {
-    t.is(e, 'Side IOs should only return functions for cleanup');
+    t.is(e, 'SideEffects should only return functions for cleanup');
     t.end();
   }
 });
